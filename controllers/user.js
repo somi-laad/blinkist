@@ -1,31 +1,50 @@
-const User = require("../model/user");
+const userModel = require("../model/user");
 const util = require('../util/main');
 
-const user = new User('Somi');
+var user;
+
+//get all user information
+userModel.getAllUsers().then(() =>{
+    //initialize user
+    console.log("..........create new user object")
+    user = new userModel.User(1); 
+});
 
 exports.addBook = (req, res, next)=>{
 
-    const bookId = req.body.bookId;
+    const bookId = parseInt(req.body.bookId);
 
     var key = "book-"+bookId;
 
-    //check if book already exits
-    if(user.getBook(key)){
-        res.statusMessage = "Already added"
-        return res.status(400).send();
-    } else if(util.isValidBook(bookId)){
-        user.addBook( key,  {
-            id: bookId,
-            isCurrent: false,
-            isFinished: false
-        });
+    console.log(user)
 
-        const bList = util.getBooksByUser(user);
-        return res.status(200).send(bList);
-    } else {
-        res.statusMessage = "Invalid book id";
+    user.hasBook(bookId).then(() => {
+        res.statusMessage = "Already added";
         return res.status(400).send();
-    }
+    }).catch(() => {
+        user.addBook(bookId);
+
+    });
+
+    return res.status(400).send();
+
+    //check if book already exits
+    // if(user.hasBook(bookId)){
+    //     res.statusMessage = "Already added"
+    //     return res.status(400).send();
+    // } else if(util.isValidBook(bookId)){
+    //     user.addBook( key,  {
+    //         id: bookId,
+    //         isCurrent: false,
+    //         isFinished: false
+    //     });
+
+    //     const bList = util.getBooksByUser(user);
+    //     return res.status(200).send(bList);
+    // } else {
+    //     res.statusMessage = "Invalid book id";
+         
+    // }
 };
 
 exports.filterByStatus = (req, res, next) =>{

@@ -1,4 +1,4 @@
-const bookData = require('../model/booksDetails');
+const bookData = require('../model/books');
 
 exports.getBooksByUser = (user) =>{
 
