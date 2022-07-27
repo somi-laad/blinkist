@@ -1,17 +1,18 @@
-const fs = require('fs');
-const path = require('path');
+const Sequelize = require('sequelize');
 
-module.exports = class User {
-    constructor(name){
-        this.name = name;
-        this.bookList = {};
-    }
+const sequelize = require('../../util/database');
 
-    addBook( key, value){
-        this.bookList[key] = value;
-    }
+const User = sequelize.define('user', {
+    id: {
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
+        allowNull: false,
+        primaryKey: true
+    },
+    name: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
+});
 
-    getBook(key) {
-        return this.bookList[key];
-    }
-}
+module.exports = Author;
