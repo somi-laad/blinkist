@@ -13,17 +13,20 @@ const Book = sequelize.define('book', {
         type: Sequelize.STRING,
         allowNull: false
     },
-    category: {
-        type: Sequelize.STRING,
-        allowNull: false
-    },
-    author: {
-        type: Sequelize.STRING,
-        allowNull: false
-    },
     pages: {
         type: Sequelize.INTEGER
     }
 });
 
 module.exports = Book;
+
+
+
+// category: {
+//     type: Sequelize.STRING,
+//         allowNull: false
+// },
+// author: {
+//     type: Sequelize.STRING,
+//         allowNull: false
+// },

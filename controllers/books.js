@@ -1,36 +1,28 @@
 const Book = require('../model/book/books');
 
-const bookdata = require('../data/bookjson');
-
 exports.getBooks = (req, res, next) => {
-    return res.status(200).send(booksModel.books);
+
+
+    Book.findAll().then(books => {
+        var allBooks = JSON.stringify(books, null, 2);
+
+        return res.status(200).send(allBooks);
+    })
+
 }
 
 exports.searchBooks = (req, res, next) => {
 
-    const categoryFilter = req.query.category;
-    const authorFilter = req.query.author;
+    const categoryId = req.query.category;
+    const authorId = req.query.author;
 
-    var searchResult = [];
-
-    if (categoryFilter && authorFilter) {
-        searchResult = booksModel.books.filter(book => {
-            return book.categories.toLowerCase().includes(categoryFilter) &&
-                book.author.toLowerCase().includes(authorFilter);
-        });
-    }
-
-    if (categoryFilter) {
-        searchResult = booksModel.books.filter(book => {
-            return book.categories.toLowerCase().includes(categoryFilter);
-        });
-    }
-
-    if (authorFilter) {
-        searchResult = booksModel.books.filter(book => {
-            return book.author.toLowerCase().includes(authorFilter);
-        });
-    }
-
-    return res.status(200).send(searchResult);
-};
+    Book.findAll({
+        where: {
+            categoryId: categoryId,
+            authorId: authorId
+        }
+    }).then(books => {
+        var allBooks = JSON.stringify(books, null, 2);
+        return res.status(200).send(allBooks);
+    });
+}

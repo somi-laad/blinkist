@@ -3,18 +3,11 @@ const util = require('../util/main');
 
 var user;
 
-//get all user information
-userModel.getAllUsers().then(() =>{
-    //initialize user
-    console.log("..........create new user object")
-    user = new userModel.User(1); 
-});
-
-exports.addBook = (req, res, next)=>{
+exports.addBook = (req, res, next) => {
 
     const bookId = parseInt(req.body.bookId);
 
-    var key = "book-"+bookId;
+    var key = "book-" + bookId;
 
     console.log(user)
 
@@ -43,11 +36,11 @@ exports.addBook = (req, res, next)=>{
     //     return res.status(200).send(bList);
     // } else {
     //     res.statusMessage = "Invalid book id";
-         
+
     // }
 };
 
-exports.filterByStatus = (req, res, next) =>{
+exports.filterByStatus = (req, res, next) => {
     var filteredResult = util.getBooksByStatus(req.query, user);
 
     return res.status(200).send(filteredResult);
@@ -59,17 +52,17 @@ exports.getBooks = (req, res, next) => {
     return res.status(200).send(bookList);
 }
 
-exports.updateBookStatus =(req, res, next) =>{
+exports.updateBookStatus = (req, res, next) => {
 
 
-    try{
+    try {
 
         console.log("....1", res.body)
         util.updateBookStatus(res.body, user);
 
-        return res.status(400).send(user.getBook("book-"+ res.body.bookId));
-    } catch{
-        return  res.status(500).send();
+        return res.status(400).send(user.getBook("book-" + res.body.bookId));
+    } catch {
+        return res.status(500).send();
     }
 
 
