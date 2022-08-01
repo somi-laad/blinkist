@@ -13,7 +13,32 @@ const Sequelize = require('sequelize');
 const Book = require('./model/book/books');
 const Category = require('./model/book/category');
 const Author = require('./model/book/author');
-const User = require("./model/user");
+const User = require("./model/users");
+
+var app = express();
+
+app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use('/user', (req, res, next) => {
+    User.findByPk(6)
+        .then(user => {
+            req.user = user;
+            next();
+        })
+        .catch(err => {
+            const error = new Error(err);
+            next(error);
+        });
+});
+
+app.use(userRouter);
+app.use(bookRouter);
+
+app.use(errorController.get404Error);
+
+app.use((error, req, res, next) => {
+    return res.status(500).send(error.message);
+});
 
 Category.hasMany(Book)
 Category.belongsTo(Book, {
@@ -25,34 +50,12 @@ Author.belongsTo(Book, {
     foreignKey: 'id'
 });
 
-
-User.belongsToMany(Book, { through: 'User_Books' });
-Book.belongsToMany(User, { through: 'User_Books' })
+User.belongsToMany(Book, { through: 'userBooks' });
+Book.belongsToMany(User, { through: 'userBooks' });
 
 sequelize.sync()
-    .then((result) => {
+    .then(() => {
         app.listen(3001);
     }).catch(err => {
         console.log(err);
     });
-
-
-//add data to db
-// Category.create({ name: 'si-fi' });
-// Author.create({ name: 'F. Scott Fitzgerald' });
-
-//Book.create({ title: "Great Gatsby", pages: 320, categoryId: 1, authorId: 3 });
-
-//User.create({ name: "Somi" });
-
-var app = express();
-
-app.use(bodyParser.urlencoded({ extended: false }));
-
-app.use(userRouter);
-app.use(bookRouter);
-
-app.use(errorController.get404Error);
-
-
-

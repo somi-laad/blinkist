@@ -12,14 +12,6 @@ const User = sequelize.define('user', {
     name: {
         type: Sequelize.STRING,
         allowNull: false
-    },
-    isCurrent: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false
-    },
-    isFinished: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false
     }
 });
 

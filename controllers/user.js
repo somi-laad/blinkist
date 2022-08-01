@@ -1,69 +1,136 @@
-const userModel = require("../model/user");
-const util = require('../util/main');
+const Sequelize = require("sequelize");
+const Book = require("../model/book/books");
+const UserBooks = require("../model/userBooks");
+const User = require("../model/users");
 
-var user;
+const { validationResult } = require('express-validator');
 
-exports.addBook = (req, res, next) => {
+exports.getAllUsers = async (req, res, next) => {
+    try {
+        const users = await User.findAll()
 
-    const bookId = parseInt(req.body.bookId);
+        const allUsers = JSON.parse(JSON.stringify(users, null, 2));
 
-    var key = "book-" + bookId;
-
-    console.log(user)
-
-    user.hasBook(bookId).then(() => {
-        res.statusMessage = "Already added";
-        return res.status(400).send();
-    }).catch(() => {
-        user.addBook(bookId);
-
-    });
-
-    return res.status(400).send();
-
-    //check if book already exits
-    // if(user.hasBook(bookId)){
-    //     res.statusMessage = "Already added"
-    //     return res.status(400).send();
-    // } else if(util.isValidBook(bookId)){
-    //     user.addBook( key,  {
-    //         id: bookId,
-    //         isCurrent: false,
-    //         isFinished: false
-    //     });
-
-    //     const bList = util.getBooksByUser(user);
-    //     return res.status(200).send(bList);
-    // } else {
-    //     res.statusMessage = "Invalid book id";
-
-    // }
-};
-
-exports.filterByStatus = (req, res, next) => {
-    var filteredResult = util.getBooksByStatus(req.query, user);
-
-    return res.status(200).send(filteredResult);
-};
-
-exports.getBooks = (req, res, next) => {
-    const bookList = util.getBooksByUser(user);
-
-    return res.status(200).send(bookList);
+        return res.status(200).send(allUsers);
+    } catch (err) {
+        const error = new Error(err);
+        return next(error);
+    }
 }
 
-exports.updateBookStatus = (req, res, next) => {
+exports.addBook = async (req, res, next) => {
 
+    const bookId = req.body.bookId;
+
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(422).send(errors.array()[0].msg);
+    }
 
     try {
+        const book = await Book.findByPk(bookId);
 
-        console.log("....1", res.body)
-        util.updateBookStatus(res.body, user);
-
-        return res.status(400).send(user.getBook("book-" + res.body.bookId));
-    } catch {
-        return res.status(500).send();
+        req.user.addBook(book, { through: UserBooks }).then(() => {
+            res.statusMessage = "Book added"
+            return res.status(200).send();
+        }).catch(err => {
+            res.statusMessage = "Book not added"
+            res.redirect(400, '/user/books');
+        });
+    } catch (err) {
+        const error = new Error(err);
+        return next(error);
     }
+
+
+};
+
+exports.filterByStatus = async (req, res, next) => {
+
+    const isCurrent = req.query.isCurrent;
+    const isFinished = req.query.isFinished;
+
+    const userId = JSON.parse(JSON.stringify(req.user)).id;
+
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(422).send(errors.array()[0].msg);
+    }
+
+    User.findAll({
+        where: { id: userId },
+        include: [{
+            model: Book,
+            through: {
+                where: {
+                    isCurrent: isCurrent,
+                    isFinished: isFinished
+                },
+                attributes: ['isCurrent', 'isFinished'],
+                as: 'status'
+            },
+        }],
+        attributes: ['books.id']
+    })
+        .then(booksByFilter => {
+            return res.status(200).send(JSON.parse(JSON.stringify(booksByFilter)));
+        })
+        .catch(err => {
+            const error = new Error(err);
+            return next(error);
+        });
+};
+
+exports.getAllUserBooks = async (req, res, next) => {
+    const books = await req.user.getBooks();
+
+    console.log(res)
+
+    return res.status(200).send(JSON.parse(JSON.stringify(books)));
+}
+
+exports.updateBookStatus = async (req, res, next) => {
+    const bookId = req.body.bookId;
+    const updatedCurrent = req.body.isCurrent;
+    const updatedFinished = req.body.isFinished;
+
+    const userId = JSON.parse(JSON.stringify(req.user)).id;
+
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(422).send(errors.array()[0].msg);
+    }
+
+    UserBooks.findOne({
+        where: {
+            userId: userId,
+            bookId: bookId
+        }
+    })
+        .then(userBook => {
+
+            if (updatedCurrent != undefined) {
+                userBook.isCurrent = updatedCurrent;
+            }
+
+            if (updatedFinished != undefined) {
+                userBook.isFinished = updatedFinished;
+            }
+
+            return userBook.save();
+        })
+        .then(result => {
+            res.statusMessage = "Book Status Updated"
+            return res.redirect('/user/books');
+        })
+        .catch(err => {
+            console.log(err);
+            res.statusMessage = "Error: book status not updated";
+            return res.redirect('/user/books');
+        });
 
 
 }

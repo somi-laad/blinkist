@@ -1,14 +1,22 @@
 const express = require('express');
 const router = express.Router();
 
-const util = require('../util/main');
+const validator = require('express-validator');
 
 const bookController = require('../controllers/books');
 
 //show list of books
-router.get('/', bookController.getBooks);
+router.get('/books', bookController.getBooks);
 
-//search books by autor, catrgory
-router.get('/search', bookController.searchBooks);
+//search books by author, catrgory
+router.get('/books/search',
+    validator.body(['category', 'author']).isBoolean(),
+    bookController.searchBooks
+);
+
+router.post('/book/add', bookController.addBook);
+
+router.post('/author/add', bookController.addAutor);
+router.post('/category/add', bookController.addCategoty);
 
 module.exports = router;
