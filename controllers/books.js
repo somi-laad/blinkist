@@ -22,8 +22,6 @@ exports.addAutor = async function (req, res, next) {
 
 exports.addCategoty = async function (req, res, next) {
 
-    console.log(req.body);
-
     const category = {
         name: req.body.name
     };

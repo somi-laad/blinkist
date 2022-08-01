@@ -33,7 +33,7 @@ exports.addBook = async (req, res, next) => {
 
         req.user.addBook(book, { through: UserBooks }).then(() => {
             res.statusMessage = "Book added"
-            return res.status(200).send();
+            return res.status(201).send();
         }).catch(err => {
             res.statusMessage = "Book not added"
             res.redirect(400, '/user/books');
@@ -84,11 +84,14 @@ exports.filterByStatus = async (req, res, next) => {
 };
 
 exports.getAllUserBooks = async (req, res, next) => {
-    const books = await req.user.getBooks();
-
-    console.log(res)
-
-    return res.status(200).send(JSON.parse(JSON.stringify(books)));
+    try {
+        const books = await req.user.getBooks();
+        return res.status(200).send(JSON.parse(JSON.stringify(books)));
+    }
+    catch (err) {
+        const error = new Error(err);
+        return next(error);
+    }
 }
 
 exports.updateBookStatus = async (req, res, next) => {
@@ -124,12 +127,11 @@ exports.updateBookStatus = async (req, res, next) => {
         })
         .then(result => {
             res.statusMessage = "Book Status Updated"
-            return res.redirect('/user/books');
+            return res.status(201).redirect('/user/books');
         })
         .catch(err => {
-            console.log(err);
-            res.statusMessage = "Error: book status not updated";
-            return res.redirect('/user/books');
+            const error = new Error(err);
+            return next(error);
         });
 
 
