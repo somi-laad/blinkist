@@ -1,8 +1,8 @@
 const Sequelize = require('sequelize');
 
-const sequelize = require('../../util/database');
+const sequelize = require('../util/database');
 
-const Category = sequelize.define('category', {
+const Author = sequelize.define('author', {
     id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
@@ -15,4 +15,4 @@ const Category = sequelize.define('category', {
     }
 });
 
-module.exports = Category;
+module.exports = Author;

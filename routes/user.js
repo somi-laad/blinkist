@@ -24,7 +24,6 @@ router.post('/user/book/add',
                     bookId: value
                 }
             }).then(bookdata => {
-                console.log(bookdata)
                 if (bookdata) {
                     return Promise.reject("Book already added");
                 }

@@ -1,5 +1,5 @@
 const Sequelize = require("sequelize");
-const Book = require("../model/book/books");
+const Book = require("../model/books");
 const UserBooks = require("../model/userBooks");
 const User = require("../model/users");
 

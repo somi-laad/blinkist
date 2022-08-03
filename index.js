@@ -10,9 +10,9 @@ const errorController = require("./controllers/error");
 const sequelize = require("./util/database");
 const Sequelize = require('sequelize');
 
-const Book = require('./model/book/books');
-const Category = require('./model/book/category');
-const Author = require('./model/book/author');
+const Book = require('./model/books');
+const Category = require('./model/category');
+const Author = require('./model/author');
 const User = require("./model/users");
 
 var app = express();

@@ -1,6 +1,6 @@
-const Book = require('../model/book/books');
-const Author = require("../model/book/author");
-const Category = require("../model/book/category");
+const Book = require('../model/books');
+const Author = require("../model/author");
+const Category = require("../model/category");
 
 exports.addAutor = async function (req, res, next) {
 
